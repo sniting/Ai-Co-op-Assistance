@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Co-op Assistant Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .user-info-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .user-info-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .save-btn {
+            background: #4CAF50;
+            padding: 10px 20px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            display: block;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            display: block;
+        }
+
+        .quick-action {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 2px dashed #ddd;
+        }
+
+        .quick-action h4 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin: 5px 5px 0 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI Co-op Assistant Dashboard</h1>
+            <p>Your intelligent companion for landing the perfect co-op position!</p>
+        </div>
+
+        <!-- User Information Section -->
+        <div class="user-info-card">
+            <h2>👤 Your Information</h2>
+            <div class="user-inputs">
+                <div>
+                    <input type="text" id="user_name" placeholder="Your Full Name" />
+                </div>
+                <div>
+                    <input type="email" id="user_email" placeholder="your.email@gmail.com" />
+                </div>
+                <div>
+                    <input type="tel" id="user_phone" placeholder="(555) 123-4567" />
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <textarea id="user_skills" placeholder="Your Skills (e.g., Python, Java, Machine Learning, React, AWS)"></textarea>
+                <textarea id="user_experience" placeholder="Your Experience (e.g., Built 3 ML projects, Led team of 4, Open source contributor)"></textarea>
+            </div>
+            <button class="save-btn" onclick="saveUserInfo()">💾 Save My Information</button>
+            <div id="save_status" class="status"></div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="grid">
+            <!-- Cover Letter Generator -->
+            <div class="card">
+                <h3>📄 Cover Letter Generator</h3>
+                <input type="text" id="cl_company" placeholder="Company Name (e.g., Google)" />
+                <input type="text" id="cl_position" placeholder="Position (e.g., Software Engineering Intern)" />
+                <textarea id="cl_why" placeholder="Why this company? (optional - adds personalization)"></textarea>
+                <button onclick="generateCoverLetter()">Generate Cover Letter</button>
+                <div class="quick-action">
+                    <h4>Quick Templates:</h4>
+                    <div>
+                        <span class="tag" onclick="fillTemplate('Google', 'Software Engineering Intern')">Google SWE</span>
+                        <span class="tag" onclick="fillTemplate('Microsoft', 'Software Development Intern')">Microsoft SDE</span>
+                        <span class="tag" onclick="fillTemplate('Amazon', 'SDE Intern')">Amazon</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interview Prep -->
+            <div class="card">
+                <h3>🎤 Interview Preparation</h3>
+                <input type="text" id="ip_company" placeholder="Company Name" />
+                <input type="text" id="ip_position" placeholder="Position" />
+                <select id="ip_type">
+                    <option value="mixed">Mixed (Behavioral + Technical)</option>
+                    <option value="behavioral">Behavioral Only</option>
+                    <option value="technical">Technical Only</option>
+                </select>
+                <button onclick="generateInterviewPrep()">Generate Interview Questions</button>
+                <div class="quick-action">
+                    <h4>💡 Pro Tip:</h4>
+                    <p>Practice with "mixed" questions first, then focus on your weak areas!</p>
+                </div>
+            </div>
+
+            <!-- Company Research -->
+            <div class="card">
+                <h3>🔍 Company Research</h3>
+                <input type="text" id="cr_company" placeholder="Company Name" />
+                <button onclick="researchCompany()">Research Company</button>
+                <div class="quick-action">
+                    <h4>Research includes:</h4>
+                    <ul style="margin-left: 20px; color: #666;">
+                        <li>Company culture & values</li>
+                        <li>Recent news & developments</li>
+                        <li>What they look for in interns</li>
+                        <li>Interview process details</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Follow-up Email -->
+            <div class="card">
+                <h3>📧 Follow-up Email</h3>
+                <input type="text" id="fu_company" placeholder="Company Name" />
+                <input type="text" id="fu_position" placeholder="Position" />
+                <select id="fu_context">
+                    <option value="After submitting application">After Application</option>
+                    <option value="One week after interview">After Interview</option>
+                    <option value="Thank you note after interview">Thank You Note</option>
+                </select>
+                <button onclick="generateFollowUp()">Generate Follow-up Email</button>
+            </div>
+
+            <!-- Networking Message -->
+            <div class="card">
+                <h3>💼 LinkedIn Networking</h3>
+                <input type="text" id="nm_company" placeholder="Target Company" />
+                <input type="text" id="nm_role" placeholder="Person's Role (e.g., Recruiter, Engineer)" />
+                <textarea id="nm_background" placeholder="Your background/interest (optional)"></textarea>
+                <button onclick="generateNetworkingMessage()">Generate Message</button>
+                <div class="quick-action">
+                    <h4>Best practices:</h4>
+                    <p style="color: #666;">Keep it under 300 characters for higher response rates!</p>
+                </div>
+            </div>
+
+            <!-- Batch Applications -->
+            <div class="card">
+                <h3>🚀 Quick Apply</h3>
+                <p style="color: #666; margin-bottom: 15px;">Generate materials for top tech companies with one click!</p>
+                <button onclick="batchGenerate()">Generate for FAANG Companies</button>
+                <div class="quick-action">
+                    <h4>Includes:</h4>
+                    <div>
+                        <span class="tag">Google</span>
+                        <span class="tag">Amazon</span>
+                        <span class="tag">Apple</span>
+                        <span class="tag">Meta</span>
+                        <span class="tag">Microsoft</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <h3>Generating your content...</h3>
+        <p>This usually takes 10-15 seconds</p>
+    </div>
+
+    <script>
+        const API_URL = 'https://sngsng.app.n8n.cloud/webhook/coop-assistant';
+
+        // Load saved user info on page load
+        window.onload = function() {
+            loadUserInfo();
+        };
+
+        function saveUserInfo() {
+            const userInfo = {
+                name: document.getElementById('user_name').value,
+                email: document.getElementById('user_email').value,
+                phone: document.getElementById('user_phone').value,
+                skills: document.getElementById('user_skills').value,
+                experience: document.getElementById('user_experience').value
+            };
+            
+            localStorage.setItem('coopAssistantUserInfo', JSON.stringify(userInfo));
+            
+            const status = document.getElementById('save_status');
+            status.className = 'status success';
+            status.textContent = '✅ Information saved successfully!';
+            
+            setTimeout(() => {
+                status.className = 'status';
+            }, 3000);
+        }
+
+        function loadUserInfo() {
+            const saved = localStorage.getItem('coopAssistantUserInfo');
+            if (saved) {
+                const userInfo = JSON.parse(saved);
+                document.getElementById('user_name').value = userInfo.name || '';
+                document.getElementById('user_email').value = userInfo.email || '';
+                document.getElementById('user_phone').value = userInfo.phone || '';
+                document.getElementById('user_skills').value = userInfo.skills || '';
+                document.getElementById('user_experience').value = userInfo.experience || '';
+            }
+        }
+
+        function getUserInfo() {
+            return {
+                name: document.getElementById('user_name').value || '[Your Name]',
+                email: document.getElementById('user_email').value || '[Your Email]',
+                phone: document.getElementById('user_phone').value || '[Your Phone]',
+                skills: document.getElementById('user_skills').value || 'Python, Java, Machine Learning',
+                experience: document.getElementById('user_experience').value || 'Experienced software developer'
+            };
+        }
+
+        async function makeRequest(action, data) {
+            showLoading();
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action, data })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+                
+                const html = await response.text();
+                
+                // Open in new window
+                const newWindow = window.open('', '_blank');
+                newWindow.document.write(html);
+                newWindow.document.close();
+                
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        function generateCoverLetter() {
+    const userInfo = getUserInfo();
+    const company = document.getElementById('cl_company').value;
+    const position = document.getElementById('cl_position').value;
+    
+    if (!company || !position) {
+        alert('Please enter company name and position!');
+        return;
+    }
+    
+    const whyCompany = document.getElementById('cl_why').value;
+    
+    makeRequest('generate_cover_letter', {
+        company: company,
+        position: position,
+        skills: userInfo.skills,
+        experience: userInfo.experience,
+        name: userInfo.name,        // This ensures name is passed
+        email: userInfo.email,      // This ensures email is passed
+        phone: userInfo.phone,      // This ensures phone is passed
+        whyCompany: whyCompany
+    });
+}
+
+        function generateInterviewPrep() {
+            const company = document.getElementById('ip_company').value;
+            const position = document.getElementById('ip_position').value;
+            const type = document.getElementById('ip_type').value;
+            
+            if (!company || !position) {
+                alert('Please enter company name and position!');
+                return;
+            }
+            
+            makeRequest('interview_prep', {
+                company: company,
+                position: position,
+                type: type
+            });
+        }
+
+        function researchCompany() {
+            const company = document.getElementById('cr_company').value;
+            
+            if (!company) {
+                alert('Please enter a company name!');
+                return;
+            }
+            
+            makeRequest('company_research', {
+                company: company
+            });
+        }
+
+        function generateFollowUp() {
+            const company = document.getElementById('fu_company').value;
+            const position = document.getElementById('fu_position').value;
+            const context = document.getElementById('fu_context').value;
+            
+            if (!company || !position) {
+                alert('Please enter company name and position!');
+                return;
+            }
+            
+            makeRequest('follow_up_email', {
+                company: company,
+                position: position,
+                context: context
+            });
+        }
+
+        function generateNetworkingMessage() {
+            const company = document.getElementById('nm_company').value;
+            const role = document.getElementById('nm_role').value;
+            const background = document.getElementById('nm_background').value || 'Graduate student seeking co-op opportunities';
+            
+            if (!company || !role) {
+                alert('Please enter company name and role!');
+                return;
+            }
+            
+            makeRequest('networking_message', {
+                company: company,
+                role: role,
+                background: background
+            });
+        }
+
+        function fillTemplate(company, position) {
+            document.getElementById('cl_company').value = company;
+            document.getElementById('cl_position').value = position;
+        }
+
+        async function batchGenerate() {
+            if (confirm('This will generate cover letters for Google, Amazon, Apple, Meta, and Microsoft. Continue?')) {
+                const companies = [
+                    { name: 'Google', position: 'Software Engineering Intern' },
+                    { name: 'Amazon', position: 'SDE Intern' },
+                    { name: 'Apple', position: 'Software Engineering Intern' },
+                    { name: 'Meta', position: 'Software Engineer Intern' },
+                    { name: 'Microsoft', position: 'Software Development Intern' }
+                ];
+                
+                for (const company of companies) {
+                    document.getElementById('cl_company').value = company.name;
+                    document.getElementById('cl_position').value = company.position;
+                    await generateCoverLetter();
+                    
+                    // Wait 2 seconds between requests
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
