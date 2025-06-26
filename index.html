@@ -252,6 +252,14 @@
             font-size: 12px;
             margin: 5px 5px 0 0;
         }
+
+        .quote {
+            font-style: italic;
+            color: #666;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -299,6 +307,17 @@
                         <span class="tag" onclick="fillTemplate('Microsoft', 'Software Development Intern')">Microsoft SDE</span>
                         <span class="tag" onclick="fillTemplate('Amazon', 'SDE Intern')">Amazon</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- Resume Tailor -->
+            <div class="card">
+                <h3>✨ Tailor Resume</h3>
+                <p class="quote">"A tailored resume is like a perfectly fitted suit - it just works better!"</p>
+                <button onclick="openResumeTailor()">Let's Tailor My Resume!</button>
+                <div class="quick-action">
+                    <h4>🎯 Why tailor?</h4>
+                    <p style="color: #666;">Customized resumes get 40% more callbacks than generic ones!</p>
                 </div>
             </div>
 
@@ -476,28 +495,28 @@
         }
 
         function generateCoverLetter() {
-    const userInfo = getUserInfo();
-    const company = document.getElementById('cl_company').value;
-    const position = document.getElementById('cl_position').value;
-    
-    if (!company || !position) {
-        alert('Please enter company name and position!');
-        return;
-    }
-    
-    const whyCompany = document.getElementById('cl_why').value;
-    
-    makeRequest('generate_cover_letter', {
-        company: company,
-        position: position,
-        skills: userInfo.skills,
-        experience: userInfo.experience,
-        name: userInfo.name,        // This ensures name is passed
-        email: userInfo.email,      // This ensures email is passed
-        phone: userInfo.phone,      // This ensures phone is passed
-        whyCompany: whyCompany
-    });
-}
+            const userInfo = getUserInfo();
+            const company = document.getElementById('cl_company').value;
+            const position = document.getElementById('cl_position').value;
+            
+            if (!company || !position) {
+                alert('Please enter company name and position!');
+                return;
+            }
+            
+            const whyCompany = document.getElementById('cl_why').value;
+            
+            makeRequest('generate_cover_letter', {
+                company: company,
+                position: position,
+                skills: userInfo.skills,
+                experience: userInfo.experience,
+                name: userInfo.name,        // This ensures name is passed
+                email: userInfo.email,      // This ensures email is passed
+                phone: userInfo.phone,      // This ensures phone is passed
+                whyCompany: whyCompany
+            });
+        }
 
         function generateInterviewPrep() {
             const company = document.getElementById('ip_company').value;
@@ -566,6 +585,10 @@
         function fillTemplate(company, position) {
             document.getElementById('cl_company').value = company;
             document.getElementById('cl_position').value = position;
+        }
+
+        function openResumeTailor() {
+            window.open('https://sniting.github.io/Resume-Tailor/', '_blank');
         }
 
         async function batchGenerate() {
